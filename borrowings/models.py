@@ -21,6 +21,15 @@ class Borrowing(models.Model):
 
     class Meta:
         ordering = ("-borrow_date", )
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "borrow_date",
+                    "expected_return_date",
+                    "actual_return_date"
+                ],
+                name="post_like")
+        ]
 
     def __str__(self) -> str:
         return (f"borrow date:{self.borrow_date},"
