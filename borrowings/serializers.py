@@ -16,7 +16,9 @@ class BorrowingReadSerializer(serializers.ModelSerializer):
 
 
 class BorrowingCreateSerializer(serializers.ModelSerializer):
-    book_detail_info = BookSerializer(source="book", read_only=True, many=False)
+    book_detail_info = BookSerializer(
+        source="book", read_only=True, many=False
+    )
 
     class Meta:
         model = Borrowing
