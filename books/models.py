@@ -11,7 +11,9 @@ class CoverType(Enum):
 class Book(models.Model):
     title = models.CharField(max_length=63)
     author = models.CharField(max_length=63)
-    cover = models.CharField(max_length=4, choices=[(tag.value, tag.name) for tag in CoverType])
+    cover = models.CharField(
+        max_length=4, choices=[(tag.value, tag.name) for tag in CoverType]
+    )
     inventory = models.PositiveIntegerField()
     daily_fee = models.DecimalField(max_digits=5, decimal_places=2)
 
