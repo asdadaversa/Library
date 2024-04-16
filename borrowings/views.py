@@ -6,10 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
 from borrowings.models import Borrowing
-from borrowings.serializers import (
-    BorrowingReadSerializer,
-    BorrowingCreateSerializer
-)
+from borrowings.serializers import BorrowingReadSerializer
 
 
 class ListCreateBorrowingView(APIView):
