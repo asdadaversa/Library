@@ -17,6 +17,7 @@ class ListCreateBorrowingView(APIView, mixins.ListModelMixin):
 
     def get(self, request, format=None):
         is_active = request.query_params.get("is_active")
+        user_id = request.query_params.get("user_id")
 
         if request.user.is_staff:
             borrowings = Borrowing.objects.all()
@@ -25,6 +26,10 @@ class ListCreateBorrowingView(APIView, mixins.ListModelMixin):
 
         if is_active:
             borrowings = borrowings.filter(actual_return_date__isnull=True)
+
+        if request.user.is_staff and user_id:
+            borrowings = borrowings.filter(user__id=user_id)
+
 
         serializer = BorrowingReadSerializer(borrowings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
