@@ -16,10 +16,15 @@ class ListCreateBorrowingView(APIView, mixins.ListModelMixin):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
+        is_active = request.query_params.get("is_active")
+
         if request.user.is_staff:
             borrowings = Borrowing.objects.all()
         else:
             borrowings = Borrowing.objects.filter(user=self.request.user)
+
+        if is_active:
+            borrowings = Borrowing.objects.filter(actual_return_date__isnull=True)
 
         serializer = BorrowingReadSerializer(borrowings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
