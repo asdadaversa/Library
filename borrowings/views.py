@@ -1,8 +1,8 @@
-from rest_framework import status, mixins, viewsets
+from rest_framework import status, mixins
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 
 from borrowings.models import Borrowing
 from borrowings.serializers import (
@@ -29,7 +29,6 @@ class ListCreateBorrowingView(APIView, mixins.ListModelMixin):
 
         if request.user.is_staff and user_id:
             borrowings = borrowings.filter(user__id=user_id)
-
 
         serializer = BorrowingReadSerializer(borrowings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
