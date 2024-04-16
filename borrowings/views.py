@@ -24,7 +24,7 @@ class ListCreateBorrowingView(APIView, mixins.ListModelMixin):
             borrowings = Borrowing.objects.filter(user=self.request.user)
 
         if is_active:
-            borrowings = Borrowing.objects.filter(actual_return_date__isnull=True)
+            borrowings = borrowings.filter(actual_return_date__isnull=True)
 
         serializer = BorrowingReadSerializer(borrowings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
