@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.db import IntegrityError
 
+from borrowings.tasks import send_borrowing_notification, send_borrowing_notification_task
+
 from borrowings.models import Borrowing
 from books.serializers import BookSerializer
 from books.models import Book
@@ -42,7 +44,10 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
                     book=book,
                     user=user
                 )
+                send_borrowing_notification.apply_async(args=[borrowing.id])
+
                 return borrowing
+
             except IntegrityError as msg:
                 raise serializers.ValidationError(f"error: {msg}")
         else:
