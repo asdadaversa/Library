@@ -161,11 +161,3 @@ CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/2'
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
-
-CELERY_BEAT_SCHEDULE = {
-    'send overdue borrowings': {
-        'task': 'borrowings.periodic_tasks.send_overdue_borrowing_notification',
-        'schedule': crontab(),  # Каждую минуту
-    },
-}
-
