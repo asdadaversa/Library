@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db import IntegrityError
 
-from borrowings.tasks import send_borrowing_notification, send_borrowing_notification_task
+from borrowings.tasks import send_borrowing_notification
 
 from borrowings.models import Borrowing
 from books.serializers import BookSerializer
