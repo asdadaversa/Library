@@ -11,3 +11,9 @@ class PaymentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
     serializer_class = PaymentSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return self.queryset
+        else:
+            return Payment.objects.filter(borrowing__user=self.request.user)
