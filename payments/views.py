@@ -6,7 +6,12 @@ from payments.serializers import PaymentSerializer
 from payments.models import Payment
 
 
-class PaymentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class PaymentViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet
+):
+
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
     authentication_classes = (JWTAuthentication,)

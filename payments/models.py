@@ -15,12 +15,18 @@ class PaymentType(Enum):
 
 
 class Payment(models.Model):
-    borrowing = models.ForeignKey(Borrowing, on_delete=models.CASCADE, related_name="payments")
+    borrowing = models.ForeignKey(
+        Borrowing,
+        on_delete=models.CASCADE,
+        related_name="payments"
+    )
     status = models.CharField(
-        max_length=10, choices=[(payment.value, payment.name) for payment in PaymentStatus]
+        max_length=10,
+        choices=[(payment.value, payment.name) for payment in PaymentStatus]
     )
     type = models.CharField(
-        max_length=10, choices=[(tag.value, tag.name) for tag in PaymentType]
+        max_length=10,
+        choices=[(tag.value, tag.name) for tag in PaymentType]
     )
     session_url = models.URLField(blank=True, null=True)
     session = models.CharField(max_length=63)
@@ -32,4 +38,8 @@ class Payment(models.Model):
         verbose_name_plural = "Payments"
 
     def __str__(self) -> str:
-        return f"{self.borrowing}, status: {self.status}, total: {self.money_to_pay}"
+        return (
+            f"{self.borrowing}, "
+            f"status: {self.status}, "
+            f"total: {self.money_to_pay}"
+        )
