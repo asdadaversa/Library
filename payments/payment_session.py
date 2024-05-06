@@ -10,7 +10,10 @@ def create_payment_session(borrowing: Borrowing):
     today = datetime.date.today()
 
     stripe.api_key = settings.STRIPE_API_KEY
-    total_bill = (borrowing.expected_return_date - today).days * borrowing.book.daily_fee
+    total_bill = (
+            (borrowing.expected_return_date - today).days
+            * borrowing.book.daily_fee
+    )
 
     product = stripe.Product.create(
         name=borrowing
@@ -39,4 +42,3 @@ def create_payment_session(borrowing: Borrowing):
         money_to_pay=total_bill
     )
     return payment
-
