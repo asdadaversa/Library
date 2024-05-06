@@ -6,11 +6,14 @@ from borrowings.tasks import send_borrowing_notification
 from borrowings.models import Borrowing
 from books.serializers import BookSerializer
 from books.models import Book
+from payments.payment_session import create_payment_session
+from payments.serializers import PaymentSerializer
 from users.models import User
 
 
 class BorrowingReadSerializer(serializers.ModelSerializer):
     book = BookSerializer(read_only=True, many=False)
+    payments = PaymentSerializer(read_only=True, many=True)
 
     class Meta:
         model = Borrowing
@@ -44,6 +47,7 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
                     book=book,
                     user=user
                 )
+                create_payment_session(borrowing)
                 send_borrowing_notification.apply_async(args=[borrowing.id])
 
                 return borrowing

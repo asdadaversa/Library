@@ -1,3 +1,6 @@
+import datetime
+from datetime import datetime
+
 from django.db import models
 
 from books.models import Book
@@ -31,7 +34,15 @@ class Borrowing(models.Model):
                 name="post_like")
         ]
 
+    @property
+    def expected_days(self):
+        expected_return_date = datetime.strptime(str(self.expected_return_date), "%Y-%m-%d").date()
+        today = datetime.today().date()
+        expected_days = (expected_return_date - today).days
+        return expected_days
+
     def __str__(self) -> str:
-        return (f"borrow date:{self.borrow_date},"
-                f"expected return date: {self.expected_return_date},"
+        return (f"book: {self.book.title} {self.book.author}, "
+                f"user: {self.user}, "
+                f"expected borrowing days:{self.expected_days},"
                 )
