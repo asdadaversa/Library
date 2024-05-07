@@ -1,9 +1,17 @@
+import stripe
+import datetime
+
+from django.http import JsonResponse
 from rest_framework import viewsets, mixins
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.reverse import reverse
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from library_service import settings
 from payments.serializers import PaymentSerializer
-from payments.models import Payment
+from borrowings.models import Borrowing
+from payments.models import Payment, PaymentStatus, PaymentType
 
 
 class PaymentViewSet(
@@ -22,3 +30,70 @@ class PaymentViewSet(
             return self.queryset
         else:
             return Payment.objects.filter(borrowing__user=self.request.user)
+
+    def create_payment_session(self, request, borrowing: Borrowing):
+        try:
+            today = datetime.date.today()
+
+            stripe.api_key = settings.STRIPE_API_KEY
+            total_bill = (
+                    (borrowing.expected_return_date - today).days
+                    * borrowing.book.daily_fee
+            )
+
+            product = stripe.Product.create(
+                name=borrowing
+            )
+
+            price = stripe.Price.create(
+                unit_amount=int(total_bill * 100),
+                currency="usd",
+                product=product.id,
+                recurring=None,
+                metadata={"description": "Price entered by customer (USD)"},
+            )
+
+            success_url = request.build_absolute_uri(reverse("payments:success")) + "?session_id={CHECKOUT_SESSION_ID}"
+            cancel_url = request.build_absolute_uri(reverse("payments:cancel"))
+
+            session = stripe.checkout.Session.create(
+                success_url=success_url,
+                cancel_url=cancel_url,
+                line_items=[{"price": price.id, "quantity": 1}],
+                mode="payment",
+            )
+            payment = Payment.objects.create(
+                borrowing=borrowing,
+                status=PaymentStatus.PENDING.value,
+                type=PaymentType.PAYMENT.value,
+                session_url=session.url,
+                session=session.id,
+                money_to_pay=total_bill
+            )
+            return payment
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, safe=False)
+
+
+@api_view(["GET"])
+def success_payment(request,  pk=None):
+    stripe.api_key = settings.STRIPE_API_KEY
+
+    session_id = request.GET.get('session_id')
+    session = stripe.checkout.Session.retrieve(session_id)
+
+    if session.payment_status == "paid":
+        payment = Payment.objects.get(session=session_id)
+        payment.status = PaymentStatus.PAID.value
+        payment.save()
+        return JsonResponse({"message": f"Thank for your order! Session id: {session_id}"})
+    else:
+        return JsonResponse({"message": "Payment failed"})
+
+
+@api_view(["GET"])
+def cancel_payment(request):
+    return JsonResponse(
+        {"message": f"Payment can be paid later, "
+                    f"session available for 24 hours"}
+    )
