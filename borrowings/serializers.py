@@ -2,12 +2,11 @@ from rest_framework import serializers
 from django.db import IntegrityError
 
 from borrowings.tasks import send_borrowing_notification
-
 from borrowings.models import Borrowing
 from books.serializers import BookSerializer
 from books.models import Book
-from payments.payment_session import create_payment_session
 from payments.serializers import PaymentSerializer
+from payments.views import PaymentViewSet
 from users.models import User
 
 
@@ -47,7 +46,10 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
                     book=book,
                     user=user
                 )
-                create_payment_session(borrowing)
+
+                request = self.context["request"]
+                payment = PaymentViewSet()
+                payment.create_payment_session(request, borrowing)
                 send_borrowing_notification.apply_async(args=[borrowing.id])
 
                 return borrowing
