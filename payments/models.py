@@ -5,7 +5,7 @@ from borrowings.models import Borrowing
 
 
 class PaymentStatus(Enum):
-    PENDING = "PENDING"
+    PENDING = 'PENDING'
     PAID = "PAID"
 
 
@@ -29,7 +29,7 @@ class Payment(models.Model):
         choices=[(tag.value, tag.name) for tag in PaymentType]
     )
     session_url = models.URLField(blank=True, null=True)
-    session = models.CharField(max_length=63)
+    session = models.CharField(max_length=100)
     money_to_pay = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
