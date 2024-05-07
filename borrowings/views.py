@@ -34,7 +34,7 @@ class ListCreateBorrowingView(APIView):
         if request.user.is_staff and user_id:
             borrowings = borrowings.filter(user__id=user_id)
 
-        serializer = BorrowingReadSerializer(borrowings, many=True)
+        serializer = BorrowingReadSerializer(borrowings, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
