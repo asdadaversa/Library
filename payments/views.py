@@ -53,7 +53,10 @@ class PaymentViewSet(
                 metadata={"description": "Price entered by customer (USD)"},
             )
 
-            success_url = request.build_absolute_uri(reverse("payments:success")) + "?session_id={CHECKOUT_SESSION_ID}"
+            success_url = request.build_absolute_uri(
+                reverse("payments:success")
+            ) + "?session_id={CHECKOUT_SESSION_ID}"
+
             cancel_url = request.build_absolute_uri(reverse("payments:cancel"))
 
             session = stripe.checkout.Session.create(
@@ -86,7 +89,9 @@ def success_payment(request,  pk=None):
         payment = Payment.objects.get(session=session_id)
         payment.status = PaymentStatus.PAID.value
         payment.save()
-        return JsonResponse({"message": f"Thank for your order! Session id: {session_id}"})
+        return JsonResponse(
+            {"message": f"Thank for your order! Session id: {session_id}"}
+        )
     else:
         return JsonResponse({"message": "Payment failed"})
 
@@ -94,6 +99,6 @@ def success_payment(request,  pk=None):
 @api_view(["GET"])
 def cancel_payment(request):
     return JsonResponse(
-        {"message": f"Payment can be paid later, "
-                    f"session available for 24 hours"}
+        {"message": "Payment can be paid later, "
+                    "session available for 24 hours"}
     )
