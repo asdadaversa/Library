@@ -37,14 +37,23 @@ class PaymentViewSet(
             today = datetime.date.today()
             overdue = (
                     borrowing.actual_return_date
-                    and borrowing.actual_return_date > borrowing.expected_return_date
+                    and borrowing.actual_return_date
+                    > borrowing.expected_return_date
             )
-            overdue_days = (borrowing.actual_return_date - borrowing.expected_return_date).days
+            overdue_days = (
+                (
+                        borrowing.actual_return_date
+                        - borrowing.expected_return_date
+                ).days
+            )
 
             fine_multiplier = 2
             if overdue:
                 total_bill = (
-                        (borrowing.actual_return_date - borrowing.expected_return_date).days
+                        (
+                                borrowing.actual_return_date
+                                - borrowing.expected_return_date
+                        ).days
                         * borrowing.book.daily_fee * fine_multiplier
                 )
                 type = PaymentType.FINE.value

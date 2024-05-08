@@ -37,5 +37,7 @@ def send_overdue_borrowing_notification():
             f"expected_return_day: {borrowing.expected_return_date}"
         )
 
-        loop.run_until_complete(bot.send_message(chat_id=chat_id, text=message_text))
+        loop.run_until_complete(
+            bot.send_message(chat_id=chat_id, text=message_text)
+        )
         loop.run_until_complete(asyncio.sleep(1))

@@ -23,7 +23,9 @@ class ListCreateBorrowingView(APIView):
     def get(self, request, format=None):
         is_active = request.query_params.get("is_active")
         user_id = request.query_params.get("user_id")
-        queryset = Borrowing.objects.select_related("book", "user").prefetch_related("payments")
+        queryset = Borrowing.objects.select_related(
+            "book", "user"
+        ).prefetch_related("payments")
 
         if request.user.is_staff:
             borrowings = queryset
@@ -36,7 +38,9 @@ class ListCreateBorrowingView(APIView):
         if request.user.is_staff and user_id:
             borrowings = borrowings.filter(user__id=user_id)
 
-        serializer = BorrowingReadSerializer(borrowings, many=True, context={"request": request})
+        serializer = BorrowingReadSerializer(
+            borrowings, many=True, context={"request": request}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
