@@ -13,6 +13,7 @@ from borrowings.serializers import (
     BorrowingReadSerializer,
     BorrowingCreateSerializer
 )
+from payments.views import PaymentViewSet
 
 
 class ListCreateBorrowingView(APIView):
@@ -49,7 +50,7 @@ class ListCreateBorrowingView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class DetailBorrowingView(APIView):
+class DetailReturnBorrowingView(APIView):
     """ APIVIEW for list and detail endpoint for Borrowing """
 
     permission_classes = [IsAuthenticated]
@@ -71,6 +72,10 @@ class DetailBorrowingView(APIView):
                 book = get_object_or_404(Book, pk=borrowings.book.id)
                 book.inventory += 1
                 book.save()
+
+                payment = PaymentViewSet()
+                payment.create_payment_session(request, borrowings)
+
                 return Response(
                     f"The book: {book.title} returned, now actual return day "
                     f"is {borrowings.actual_return_date}, "
