@@ -1,5 +1,4 @@
 import datetime
-from datetime import datetime
 
 from django.db import models
 
@@ -36,7 +35,9 @@ class Borrowing(models.Model):
 
     @property
     def expected_days(self):
-        expected_return_date = datetime.strptime(str(self.expected_return_date), "%Y-%m-%d").date()
+        expected_return_date = datetime.strptime(
+            str(self.expected_return_date), "%Y-%m-%d").date()
+
         today = datetime.today().date()
         expected_days = (expected_return_date - today).days
         return expected_days

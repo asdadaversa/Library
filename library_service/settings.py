@@ -32,7 +32,7 @@ CHAT_ID = os.environ.get("CHAT_ID")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -51,11 +51,13 @@ INSTALLED_APPS = [
     "borrowings",
     "celery",
     "django_celery_beat",
-    "payments"
+    "payments",
+    "debug_toolbar"
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -164,3 +166,5 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 
 STRIPE_API_KEY = os.environ.get("SECRET_STRIPE_KEY")
+
+INTERNAL_IPS = ["127.0.0.1"]

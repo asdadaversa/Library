@@ -13,6 +13,7 @@ from borrowings.serializers import (
     BorrowingReadSerializer,
     BorrowingCreateSerializer
 )
+from payments.views import PaymentViewSet
 
 
 class ListCreateBorrowingView(APIView):
@@ -22,9 +23,12 @@ class ListCreateBorrowingView(APIView):
     def get(self, request, format=None):
         is_active = request.query_params.get("is_active")
         user_id = request.query_params.get("user_id")
+        queryset = Borrowing.objects.select_related(
+            "book", "user"
+        ).prefetch_related("payments")
 
         if request.user.is_staff:
-            borrowings = Borrowing.objects.all()
+            borrowings = queryset
         else:
             borrowings = Borrowing.objects.filter(user=self.request.user)
 
@@ -34,7 +38,9 @@ class ListCreateBorrowingView(APIView):
         if request.user.is_staff and user_id:
             borrowings = borrowings.filter(user__id=user_id)
 
-        serializer = BorrowingReadSerializer(borrowings, many=True, context={"request": request})
+        serializer = BorrowingReadSerializer(
+            borrowings, many=True, context={"request": request}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -48,7 +54,7 @@ class ListCreateBorrowingView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class DetailBorrowingView(APIView):
+class DetailReturnBorrowingView(APIView):
     """ APIVIEW for list and detail endpoint for Borrowing """
 
     permission_classes = [IsAuthenticated]
@@ -70,6 +76,10 @@ class DetailBorrowingView(APIView):
                 book = get_object_or_404(Book, pk=borrowings.book.id)
                 book.inventory += 1
                 book.save()
+
+                payment = PaymentViewSet()
+                payment.create_payment_session(request, borrowings)
+
                 return Response(
                     f"The book: {book.title} returned, now actual return day "
                     f"is {borrowings.actual_return_date}, "
