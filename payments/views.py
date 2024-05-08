@@ -33,16 +33,34 @@ class PaymentViewSet(
 
     def create_payment_session(self, request, borrowing: Borrowing):
         try:
-            today = datetime.date.today()
-
             stripe.api_key = settings.STRIPE_API_KEY
-            total_bill = (
-                    (borrowing.expected_return_date - today).days
-                    * borrowing.book.daily_fee
+            today = datetime.date.today()
+            overdue = (
+                    borrowing.actual_return_date
+                    and borrowing.actual_return_date > borrowing.expected_return_date
             )
+            overdue_days = (borrowing.actual_return_date - borrowing.expected_return_date).days
+
+            fine_multiplier = 2
+            if overdue:
+                total_bill = (
+                        (borrowing.actual_return_date - borrowing.expected_return_date).days
+                        * borrowing.book.daily_fee * fine_multiplier
+                )
+                type = PaymentType.FINE.value
+
+            else:
+                total_bill = (
+                        (borrowing.expected_return_date - today).days
+                        * borrowing.book.daily_fee
+                )
+                type = PaymentType.PAYMENT.value
 
             product = stripe.Product.create(
-                name=borrowing
+                name=borrowing,
+                description=f"As you are overdue your "
+                            f"return it is a fine pyment, "
+                            f"$overdue days*2 (days: {overdue_days})"
             )
 
             price = stripe.Price.create(
@@ -65,10 +83,11 @@ class PaymentViewSet(
                 line_items=[{"price": price.id, "quantity": 1}],
                 mode="payment",
             )
+
             payment = Payment.objects.create(
                 borrowing=borrowing,
                 status=PaymentStatus.PENDING.value,
-                type=PaymentType.PAYMENT.value,
+                type=type,
                 session_url=session.url,
                 session=session.id,
                 money_to_pay=total_bill
