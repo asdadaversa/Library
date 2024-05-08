@@ -22,9 +22,10 @@ class ListCreateBorrowingView(APIView):
     def get(self, request, format=None):
         is_active = request.query_params.get("is_active")
         user_id = request.query_params.get("user_id")
+        queryset = Borrowing.objects.select_related("book", "user").prefetch_related("payments")
 
         if request.user.is_staff:
-            borrowings = Borrowing.objects.all()
+            borrowings = queryset
         else:
             borrowings = Borrowing.objects.filter(user=self.request.user)
 
