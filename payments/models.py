@@ -5,8 +5,9 @@ from borrowings.models import Borrowing
 
 
 class PaymentStatus(Enum):
-    PENDING = 'PENDING'
+    PENDING = "PENDING"
     PAID = "PAID"
+    EXPIRED = "EXPIRED"
 
 
 class PaymentType(Enum):
