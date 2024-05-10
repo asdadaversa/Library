@@ -1,5 +1,5 @@
 import datetime
-
+from datetime import datetime
 from django.db import models
 
 from books.models import Book
@@ -43,7 +43,7 @@ class Borrowing(models.Model):
         return expected_days
 
     def __str__(self) -> str:
-        return (f"book: {self.book.title} {self.book.author}, "
+        return (f"book: {self.book.title}, author: {self.book.author}, "
                 f"user: {self.user}, "
-                f"expected borrowing days:{self.expected_days},"
+                f"expected borrowing days:{self.expected_days}"
                 )

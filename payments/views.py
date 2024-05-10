@@ -37,39 +37,33 @@ class PaymentViewSet(
             today = datetime.date.today()
             overdue = (
                     borrowing.actual_return_date
-                    and borrowing.actual_return_date
-                    > borrowing.expected_return_date
-            )
-            overdue_days = (
-                (
-                        borrowing.actual_return_date
-                        - borrowing.expected_return_date
-                ).days
+                    and borrowing.actual_return_date > borrowing.expected_return_date
             )
 
             fine_multiplier = 2
             if overdue:
+                overdue_days = (
+                        borrowing.actual_return_date - borrowing.expected_return_date
+                ).days
                 total_bill = (
-                        (
-                                borrowing.actual_return_date
-                                - borrowing.expected_return_date
-                        ).days
-                        * borrowing.book.daily_fee * fine_multiplier
+                        overdue_days * borrowing.book.daily_fee * fine_multiplier
                 )
                 type = PaymentType.FINE.value
-
+                product_description = (
+                    f"As you are overdue your "
+                    f"return it is a fine pyment, "
+                    f"$overdue days*2 (days: {overdue_days})"
+                )
             else:
                 total_bill = (
-                        (borrowing.expected_return_date - today).days
-                        * borrowing.book.daily_fee
+                        borrowing.expected_days * borrowing.book.daily_fee
                 )
                 type = PaymentType.PAYMENT.value
+                product_description = "regular borrowing payment"
 
             product = stripe.Product.create(
                 name=borrowing,
-                description=f"As you are overdue your "
-                            f"return it is a fine pyment, "
-                            f"$overdue days*2 (days: {overdue_days})"
+                description=product_description
             )
 
             price = stripe.Price.create(

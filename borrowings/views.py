@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.db import IntegrityError
 
+
 from borrowings.models import Borrowing
 from books.models import Book
 from borrowings.serializers import (
@@ -72,19 +73,18 @@ class DetailReturnBorrowingView(APIView):
             if not borrowings.actual_return_date:
                 borrowings.actual_return_date = today_date
                 borrowings.save()
-
                 book = get_object_or_404(Book, pk=borrowings.book.id)
                 book.inventory += 1
                 book.save()
-
-                payment = PaymentViewSet()
-                payment.create_payment_session(request, borrowings)
-
+                if borrowings.actual_return_date > borrowings.expected_return_date:
+                    payment = PaymentViewSet()
+                    payment.create_payment_session(request, borrowings)
                 return Response(
                     f"The book: {book.title} returned, now actual return day "
                     f"is {borrowings.actual_return_date}, "
                     f"book inventory {book.inventory}"
                 )
-            return Response("The book already returned")
+            else:
+                return Response("The book already returned")
         except IntegrityError as msg:
             return Response(f"error: {msg}")
