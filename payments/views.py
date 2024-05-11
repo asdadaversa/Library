@@ -2,14 +2,16 @@ import stripe
 import datetime
 
 from django.http import JsonResponse
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from library_service import settings
-from payments.serializers import PaymentSerializer
+from payments.serializers import PaymentSerializer, PaymentRenewSerializer
 from borrowings.models import Borrowing
 from payments.models import Payment, PaymentStatus, PaymentType
 
@@ -124,3 +126,52 @@ def cancel_payment(request):
         {"message": "Payment can be paid later, "
                     "session available for 24 hours"}
     )
+
+
+class RenewPayment(APIView):
+    serializer_class = PaymentSerializer
+    permission_classes = [IsAuthenticated]
+
+    stripe.api_key = settings.STRIPE_API_KEY
+
+    def get(self, request, pk):
+        payment = Payment.objects.get(id=pk)
+        serializer = PaymentRenewSerializer(payment)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, pk, format=None):
+        payment = Payment.objects.get(id=pk)
+        if payment.status != PaymentStatus.EXPIRED.value:
+            return Response({"message": "payment is not expired"})
+        try:
+            product = stripe.Product.create(
+                name=payment.borrowing,
+                description="payment renew"
+            )
+            price = stripe.Price.create(
+                unit_amount=int(payment.money_to_pay * 100),
+                currency="usd",
+                product=product.id,
+                recurring=None,
+                metadata={"description": "Price entered by customer (USD)"},
+            )
+
+            success_url = request.build_absolute_uri(
+                reverse("payments:success")
+            ) + "?session_id={CHECKOUT_SESSION_ID}"
+
+            cancel_url = request.build_absolute_uri(reverse("payments:cancel"))
+
+            session = stripe.checkout.Session.create(
+                success_url=success_url,
+                cancel_url=cancel_url,
+                line_items=[{"price": price.id, "quantity": 1}],
+                mode="payment",
+            )
+            payment.status = PaymentStatus.PENDING.value
+            payment.session_url = session.url
+            payment.session = session.id
+            payment.save()
+            return Response({"message": "Payment renewed successfully"})
+        except Exception as e:
+            return Response({"error": str(e)})
