@@ -29,7 +29,7 @@ class Payment(models.Model):
         max_length=10,
         choices=[(tag.value, tag.name) for tag in PaymentType]
     )
-    session_url = models.URLField(blank=True, null=True)
+    session_url = models.CharField(max_length=500, blank=True, null=True)
     session = models.CharField(max_length=100)
     money_to_pay = models.DecimalField(max_digits=10, decimal_places=2)
 
