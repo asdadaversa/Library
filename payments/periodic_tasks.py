@@ -2,7 +2,6 @@ import datetime
 import stripe
 
 from celery import shared_task
-
 from library_service import settings
 from payments.models import Payment, PaymentStatus
 
@@ -14,10 +13,7 @@ def check_session_for_expiration():
     for payment in payments:
         try:
             session = stripe.checkout.Session.retrieve(payment.session)
-            expires_at_unix = session.expires_at
-            expires_at_readable = datetime.datetime.fromtimestamp(expires_at_unix)
-            print(payment, expires_at_readable)
-            if datetime.datetime.now() > expires_at_readable:
+            if session.status == "expired":
                 payment.status = PaymentStatus.EXPIRED.value
                 payment.save()
         except Exception as e:
