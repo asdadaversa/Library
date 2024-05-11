@@ -7,7 +7,6 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.db import IntegrityError
 
-
 from borrowings.models import Borrowing
 from books.models import Book
 from borrowings.serializers import (
@@ -55,7 +54,17 @@ class ListCreateBorrowingView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class DetailReturnBorrowingView(APIView):
+class DetailBorrowingView(APIView):
+    """ APIVIEW for detail endpoint for Borrowing """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk, format=None):
+        borrowings = get_object_or_404(Borrowing, pk=pk)
+        serializer = BorrowingReadSerializer(borrowings)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ReturnBorrowingView(APIView):
     """ APIVIEW for list and detail endpoint for Borrowing """
 
     permission_classes = [IsAuthenticated]
