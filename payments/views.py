@@ -13,6 +13,7 @@ from library_service import settings
 from payments.serializers import PaymentSerializer, PaymentRenewSerializer
 from borrowings.models import Borrowing
 from payments.models import Payment, PaymentStatus, PaymentType
+from payments.tasks import send_success_payment_notification
 
 
 class PaymentViewSet(
@@ -111,6 +112,7 @@ def success_payment(request,  pk=None):
         payment = Payment.objects.get(session=session_id)
         payment.status = PaymentStatus.PAID.value
         payment.save()
+        send_success_payment_notification.apply_async(args=[payment.session])
         return JsonResponse(
             {"message": f"Thank for your order! Session id: {session_id}"}
         )
