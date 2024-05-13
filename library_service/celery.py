@@ -11,7 +11,7 @@ app = Celery("library_service", broker=settings.CELERY_BROKER_URL, backend=setti
 
 app.config_from_object("django.conf:settings")
 
-app.autodiscover_tasks(packages=["borrowings.periodic_tasks"])
+app.autodiscover_tasks(packages=["borrowings.periodic_tasks", "payments.periodic_tasks"])
 
 
 app.conf.beat_schedule = {
@@ -19,6 +19,10 @@ app.conf.beat_schedule = {
         "task": "borrowings.periodic_tasks.send_overdue_borrowing_notification",
         "schedule": crontab(hour="18", minute="18"),
     },
+    "check stripe session for expiration": {
+        "task": "payments.periodic_tasks.check_session_for_expiration",
+        "schedule": crontab(minute="*"),
+    }
 }
 
 app.conf.update(

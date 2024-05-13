@@ -54,7 +54,17 @@ class ListCreateBorrowingView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class DetailReturnBorrowingView(APIView):
+class DetailBorrowingView(APIView):
+    """ APIVIEW for detail endpoint for Borrowing """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk, format=None):
+        borrowings = get_object_or_404(Borrowing, pk=pk)
+        serializer = BorrowingReadSerializer(borrowings)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ReturnBorrowingView(APIView):
     """ APIVIEW for list and detail endpoint for Borrowing """
 
     permission_classes = [IsAuthenticated]
@@ -72,19 +82,18 @@ class DetailReturnBorrowingView(APIView):
             if not borrowings.actual_return_date:
                 borrowings.actual_return_date = today_date
                 borrowings.save()
-
                 book = get_object_or_404(Book, pk=borrowings.book.id)
                 book.inventory += 1
                 book.save()
-
-                payment = PaymentViewSet()
-                payment.create_payment_session(request, borrowings)
-
+                if borrowings.actual_return_date > borrowings.expected_return_date:
+                    payment = PaymentViewSet()
+                    payment.create_payment_session(request, borrowings)
                 return Response(
                     f"The book: {book.title} returned, now actual return day "
                     f"is {borrowings.actual_return_date}, "
                     f"book inventory {book.inventory}"
                 )
-            return Response("The book already returned")
+            else:
+                return Response("The book already returned")
         except IntegrityError as msg:
             return Response(f"error: {msg}")

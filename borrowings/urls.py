@@ -1,17 +1,17 @@
 from django.urls import path
 
-from borrowings.views import ListCreateBorrowingView, DetailReturnBorrowingView
+from borrowings.views import ListCreateBorrowingView, DetailBorrowingView, ReturnBorrowingView
 
 urlpatterns = [
     path("", ListCreateBorrowingView.as_view(), name="borrowings"),
     path(
         "<int:pk>/",
-        DetailReturnBorrowingView.as_view(),
+        DetailBorrowingView.as_view(),
         name="borrowings-detail"
     ),
     path(
         "<int:pk>/return",
-        DetailReturnBorrowingView.as_view(),
+        ReturnBorrowingView.as_view(),
         name="borrowings-return"
     )
 ]
