@@ -8,6 +8,7 @@ from books.models import Book
 from payments.serializers import PaymentSerializer
 from payments.views import PaymentViewSet
 from users.models import User
+from payments.models import PaymentStatus
 
 
 class BorrowingReadSerializer(serializers.ModelSerializer):
@@ -36,6 +37,14 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         book = Book.objects.get(id=book_id)
         user_id = self.context["request"].user.id
         user = User.objects.get(id=user_id)
+
+        user_pending_payments = user.borrowings.select_related(
+            "book", "user").filter(
+            payments__status=PaymentStatus.PENDING.value
+        ).first()
+        if user_pending_payments:
+            raise serializers.ValidationError(
+                "Can't create an order. You already have pending payment.")
 
         if book.inventory > 0:
             try:
