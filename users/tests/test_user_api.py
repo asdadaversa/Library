@@ -167,5 +167,8 @@ class PrivateUserApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             res.data,
-            {"message": "Please enter correct password. Password doesn't match stored data"}
+            {
+                "message": "Please enter correct password. "
+                           "Password doesn't match stored data"
+            }
         )
