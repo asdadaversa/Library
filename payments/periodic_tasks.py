@@ -1,4 +1,3 @@
-import datetime
 import stripe
 
 from celery import shared_task

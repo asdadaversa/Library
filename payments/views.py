@@ -1,5 +1,4 @@
 import stripe
-import datetime
 
 from django.http import JsonResponse
 from rest_framework import viewsets, mixins, status
@@ -36,7 +35,6 @@ class PaymentViewSet(
     def create_payment_session(self, request, borrowing: Borrowing):
         try:
             stripe.api_key = settings.STRIPE_API_KEY
-            today = datetime.date.today()
             overdue = (
                     borrowing.actual_return_date
                     and borrowing.actual_return_date > borrowing.expected_return_date

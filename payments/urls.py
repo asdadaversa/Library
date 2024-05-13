@@ -1,7 +1,12 @@
 from django.urls import path, include
 from rest_framework import routers
 
-from payments.views import PaymentViewSet, RenewPayment, cancel_payment, success_payment
+from payments.views import (
+    PaymentViewSet,
+    RenewPayment,
+    cancel_payment,
+    success_payment
+)
 
 router = routers.DefaultRouter()
 router.register("", PaymentViewSet, basename="payments")
