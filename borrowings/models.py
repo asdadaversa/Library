@@ -1,4 +1,3 @@
-import datetime
 from datetime import datetime
 from django.db import models
 
@@ -18,7 +17,8 @@ class Borrowing(models.Model):
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="borrowings"
     )
 
     class Meta:
