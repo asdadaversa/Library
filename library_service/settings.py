@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     "celery",
     "django_celery_beat",
     "payments",
-    "debug_toolbar"
+    "debug_toolbar",
+    "drf_spectacular"
 ]
 
 MIDDLEWARE = [
@@ -145,6 +146,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
@@ -168,3 +170,10 @@ CELERY_RESULT_SERIALIZER = "json"
 STRIPE_API_KEY = os.environ.get("SECRET_STRIPE_KEY")
 
 INTERNAL_IPS = ["127.0.0.1"]
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Library Service API",
+    "DESCRIPTION": "Library Service project. Borrowings, payments, notifications",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+}
