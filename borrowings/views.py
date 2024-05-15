@@ -85,7 +85,10 @@ class ReturnBorrowingView(APIView):
                 book = get_object_or_404(Book, pk=borrowings.book.id)
                 book.inventory += 1
                 book.save()
-                if borrowings.actual_return_date > borrowings.expected_return_date:
+                if (
+                        borrowings.actual_return_date
+                        > borrowings.expected_return_date
+                ):
                     payment = PaymentViewSet()
                     payment.create_payment_session(request, borrowings)
                 return Response(
