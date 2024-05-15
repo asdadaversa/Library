@@ -10,7 +10,6 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 from books.models import Book, CoverType
-from books.serializers import BookSerializer
 from borrowings.models import Borrowing
 from payments.models import Payment, PaymentStatus, PaymentType
 from payments.serializers import PaymentSerializer
@@ -154,9 +153,9 @@ class AdminPaymentApiTests(TestCase):
 
     def test_admin_user_can_see_all_queryset(self):
         borrowing1 = sample_borrowing()
-        payment1 = sample_payment(borrowing=borrowing1)
+        sample_payment(borrowing=borrowing1)
         borrowing2 = sample_borrowing()
-        payment2 = sample_payment(borrowing=borrowing2)
+        sample_payment(borrowing=borrowing2)
 
         res = self.client.get(PAYMENTS_URL)
         self.assertEqual(len(res.data), 2)

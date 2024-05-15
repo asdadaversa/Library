@@ -37,16 +37,20 @@ class PaymentViewSet(
             stripe.api_key = settings.STRIPE_API_KEY
             overdue = (
                     borrowing.actual_return_date
-                    and borrowing.actual_return_date > borrowing.expected_return_date
+                    and borrowing.actual_return_date
+                    > borrowing.expected_return_date
             )
 
             fine_multiplier = 2
             if overdue:
                 overdue_days = (
-                        borrowing.actual_return_date - borrowing.expected_return_date
+                        borrowing.actual_return_date
+                        - borrowing.expected_return_date
                 ).days
                 total_bill = (
-                        overdue_days * borrowing.book.daily_fee * fine_multiplier
+                        overdue_days
+                        * borrowing.book.daily_fee
+                        * fine_multiplier
                 )
                 type = PaymentType.FINE.value
                 product_description = (
