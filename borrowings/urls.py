@@ -14,7 +14,7 @@ urlpatterns = [
         name="borrowings-detail"
     ),
     path(
-        "<int:pk>/return",
+        "<int:pk>/return/",
         ReturnBorrowingView.as_view(),
         name="borrowings-return"
     )

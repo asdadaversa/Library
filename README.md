@@ -115,9 +115,6 @@ next run:
 create superuser:
 docker-compose run app python manage.py createsuperuser
 
-Use the following command to load prepared data from fixture for docker:
-docker-compose run app sh -c "python manage.py loaddata db_data.json"
-
 ```
 
 
