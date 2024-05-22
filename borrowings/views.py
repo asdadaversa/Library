@@ -85,7 +85,6 @@ class ReturnBorrowingView(APIView):
     """ APIVIEW for list and detail endpoint for Borrowing """
 
     permission_classes = [IsAuthenticated]
-    serializer_class = BorrowingReadSerializer
 
     def get(self, request, pk, format=None):
         borrowings = get_object_or_404(Borrowing, pk=pk)
