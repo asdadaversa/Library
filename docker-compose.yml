@@ -55,6 +55,23 @@ services:
     networks:
       - library_library
 
+  celery-beat:
+    build:
+      context: .
+    image: celery-beat-library
+    container_name: celery-beat-library
+    volumes:
+      - .:/app/celery_beat
+    command: celery -A library_service beat --loglevel=INFO
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - broker
+    networks:
+      - library_library
+
+
 volumes:
   redis-data:
     driver: local
@@ -62,13 +79,3 @@ volumes:
 networks:
   library_library:
     driver: bridge
-
-
-
-#volumes:
-#  redis-data:
-#    driver: local
-#
-#networks:
-#  library:
-#    driver: bridge
