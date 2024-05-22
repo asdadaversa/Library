@@ -1,0 +1,74 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             python manage.py migrate &&
+             python manage.py loaddata data_test.json &&
+             python manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - .env
+    networks:
+      - library_library
+
+  db:
+    image: postgres:14-alpine
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    networks:
+      - library_library
+
+  broker:
+    image: redis:7.0.15-alpine
+    container_name: redis-library
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    depends_on:
+      - db
+    networks:
+      - library_library
+
+  celery-worker:
+    build:
+      context: .
+    image: celery-worker-library
+    container_name: celery-worker-library
+    volumes:
+      - .:/app/celery_worker
+    command: celery -A library_service worker --loglevel=INFO
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - broker
+    networks:
+      - library_library
+
+volumes:
+  redis-data:
+    driver: local
+
+networks:
+  library_library:
+    driver: bridge
+
+
+
+#volumes:
+#  redis-data:
+#    driver: local
+#
+#networks:
+#  library:
+#    driver: bridge

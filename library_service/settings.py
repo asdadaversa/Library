@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     "celery",
     "django_celery_beat",
     "payments",
-    "debug_toolbar"
+    "debug_toolbar",
+    "drf_spectacular"
 ]
 
 MIDDLEWARE = [
@@ -92,8 +93,12 @@ WSGI_APPLICATION = "library_service.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": os.environ.get("POSTGRES_HOST"),
+        "NAME": os.environ.get("POSTGRES_DB"),
+        "USER": os.environ.get("POSTGRES_USER"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+        "PORT": os.environ.get("DB_PORT"),
     }
 }
 
@@ -145,6 +150,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
@@ -159,8 +165,8 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": False,
 }
 
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/1'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/2'
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -168,3 +174,10 @@ CELERY_RESULT_SERIALIZER = "json"
 STRIPE_API_KEY = os.environ.get("SECRET_STRIPE_KEY")
 
 INTERNAL_IPS = ["127.0.0.1"]
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Library Service API",
+    "DESCRIPTION": "Library Service project. Borrowings, payments, notifications",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+}

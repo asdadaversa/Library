@@ -14,7 +14,7 @@ router.register("", PaymentViewSet, basename="payments")
 urlpatterns = [
     path("success/", success_payment, name="success"),
     path("cancel/", cancel_payment, name="cancel"),
-    path("<int:pk>/renew", RenewPayment.as_view(), name="renew"),
+    path("<int:pk>/renew/", RenewPayment.as_view(), name="renew"),
     path("", include(router.urls))
 ]
 

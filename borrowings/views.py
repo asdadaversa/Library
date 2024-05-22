@@ -1,5 +1,7 @@
 import datetime
 
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -20,6 +22,20 @@ class ListCreateBorrowingView(APIView):
     serializer_class = BorrowingReadSerializer
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "is_active",
+                type=OpenApiTypes.STR,
+                description="Filter borrowings by actual_return_date__isnull=True (ex. ?is_active=True)",
+            ),
+            OpenApiParameter(
+                "user_id",
+                type=OpenApiTypes.STR,
+                description="Filter borrowings by user_id, only for admin (ex. ?user_id=1)",
+            ),
+        ]
+    )
     def get(self, request, format=None):
         is_active = request.query_params.get("is_active")
         user_id = request.query_params.get("user_id")
@@ -57,6 +73,7 @@ class ListCreateBorrowingView(APIView):
 class DetailBorrowingView(APIView):
     """ APIVIEW for detail endpoint for Borrowing """
     permission_classes = [IsAuthenticated]
+    serializer_class = BorrowingReadSerializer
 
     def get(self, request, pk, format=None):
         borrowings = get_object_or_404(Borrowing, pk=pk)
