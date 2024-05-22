@@ -28,28 +28,38 @@ pip install -r requirements.txt
 ```
 
 ### Telegram Token setup
+```
 - Open Telegram and search for '@BotFather'.
 - Start a chat with '@BotFather'.
 - Type '/newbot' to create a new bot.
 - Follow the instructions to set a name and username for your bot.
 - Once your bot is created, '@BotFather' will provide you with a unique token.
-```
+
 example telegram token
 TELEGRAM_TOKEN="6991708756:AAHOjZuNtwSs2hmDuYbpOYy9Xp3LXDVc125"
-```
-```
+
 To get chat id run library_telegram_bot/bot.py and make /start command in telegram bot
 CHAT_ID="55192146"
 
 ```
 ### Stipe api key setup
+```
 - Log in to your Stripe account at stripe.com.
 - Go to the 'Developers' or 'API keys' section.
 - Click on 'Create a key'.
 - Stripe will provide you with two keys: the Secret Key for server-side authentication and the 
 Publishable Key for client-side use in your web application.
+- 4242424242424242 12/2026 314 stripe test card
+```
 
- 
+
+### Celery setup
+```
+celery -A library_service worker --loglevel=INFO
+CELERY_BROKER_URL=redis://localhost:6379/1
+CELERY_RESULT_BACKEND=redis://localhost:6379/2
+```
+
 ### Environment Variables Setup
 1. Create a `.env` file in the root directory of your project.
 2. Set up it as in '.env.sample'
@@ -61,9 +71,10 @@ POSTGRES_USER=POSTGRES_USER
 POSTGRES_PASSWORD=POSTGRES_PASSWORD
 DB_PORT=DB_PORT
 TELEGRAM_TOKEN="6991708756:AAHOjZuNtwSs2hmDuYbpOYy9Xp3LXDVc125"
-CHAT_ID="55192146"
-SECRET_STRIPE_KEY=sk_test_51PBg0LRu0QmZgMhxbjasgfCPJDWNKY7FYFl4lXLykzriNxVtDxzje31PSLi913pmaFELZ0CJmUlDfUFnzwg9ZwP00IUm2K3v4
-
+CHAT_ID="55192999"
+SECRET_STRIPE_KEY=sk_test_51PBg0LRu0QmZgMhxbjasgfCPOLONKY7FYFl4lXLykzriNxVtDxzje31PSLi913pmaFELZ0CJmUlDfUFnzwg9ZwP00IUm2K3v4
+CELERY_BROKER_URL='redis://localhost/1'
+CELERY_RESULT_BACKEND='redis://localhost/2'
 ```
 
 ### Next run migrations and run server
@@ -81,7 +92,7 @@ $ python manage.py runserver
 `python manage.py loaddata db_data.json`
 
 - After loading data from fixture you can use following superuser (or create another one by yourself):
-  - email: `admin@example`
+  - email: `admin@example.com`
   - Password: `Qwerty.1`
 
 
@@ -94,10 +105,15 @@ POSTGRES_HOST=db
 POSTGRES_DB=app
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=secretpassword
+CELERY_BROKER_URL=redis://localhost:6379/1
+CELERY_RESULT_BACKEND=redis://localhost:6379/2
 
 next run:
 - docker-compose build
 - docker-compose up
+
+create superuser:
+docker-compose run app python manage.py createsuperuser
 
 Use the following command to load prepared data from fixture for docker:
 docker-compose run app sh -c "python manage.py loaddata db_data.json"
@@ -165,6 +181,8 @@ docker-compose run app sh -c "python manage.py loaddata db_data.json"
 - The API is documented using the OpenAPI standard.
 - Access the API documentation by running the server and navigating to http://127.0.0.1:8000/api/doc/swagger/ or http://127.0.0.1:8000/api/doc/redoc/.
 
+fgdfgdfgdfg
+docker-compose run app python manage.py createsuperuser
 
 ## Contributing
 Feel free to contribute to these enhancements, and let's make our Library Service API even better!
